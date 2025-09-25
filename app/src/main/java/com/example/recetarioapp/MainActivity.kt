@@ -46,7 +46,10 @@ fun AppNavigation() {
             arguments = listOf(navArgument("texto") { type = NavType.StringType })
         ) { backStackEntry ->
             val texto = backStackEntry.arguments?.getString("texto") ?: "Sin texto"
-            Pantalla2(texto)
+            Pantalla2(
+                texto = texto,
+                onBack = { navController.popBackStack() } // Volver a Pantalla 1
+            )
         }
     }
 }
@@ -60,16 +63,16 @@ fun Pantalla1(onNavigate: (String) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Pantalla 1", style = MaterialTheme.typography.titleLarge)
+        Text("🍲 Recetario App", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { onNavigate("Hola desde Pantalla 1") }) {
-            Text("Ir a Pantalla 2")
+        Button(onClick = { onNavigate("Receta: Arroz con Pollo") }) {
+            Text("Ver receta")
         }
     }
 }
 
 @Composable
-fun Pantalla2(texto: String) {
+fun Pantalla2(texto: String, onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -77,9 +80,13 @@ fun Pantalla2(texto: String) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Pantalla 2", style = MaterialTheme.typography.titleLarge)
+        Text("📖 Detalle de la Receta", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = texto, style = MaterialTheme.typography.bodyLarge)
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(onClick = { onBack() }) {
+            Text("Volver al menú")
+        }
     }
 }
 
