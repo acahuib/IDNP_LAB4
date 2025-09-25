@@ -6,7 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,27 +35,25 @@ fun AppNavigation() {
 
     NavHost(navController = navController, startDestination = "pantalla1") {
         composable("pantalla1") {
-            Pantalla1(onNavigate = { texto ->
-                // Encode para manejar espacios y caracteres especiales en el texto
-                navController.navigate("pantalla2/${Uri.encode(texto)}")
+            Pantalla1(onNavigate = { nombre ->
+                navController.navigate("pantalla2/${Uri.encode(nombre)}")
             })
         }
 
         composable(
-            route = "pantalla2/{texto}",
-            arguments = listOf(navArgument("texto") { type = NavType.StringType })
+            route = "pantalla2/{nombre}",
+            arguments = listOf(navArgument("nombre") { type = NavType.StringType })
         ) { backStackEntry ->
-            val texto = backStackEntry.arguments?.getString("texto") ?: "Sin texto"
-            Pantalla2(
-                texto = texto,
-                onBack = { navController.popBackStack() } // Volver a Pantalla 1
-            )
+            val nombre = backStackEntry.arguments?.getString("nombre") ?: "Invitado"
+            Pantalla2(nombre = nombre, onBack = { navController.popBackStack() })
         }
     }
 }
 
 @Composable
 fun Pantalla1(onNavigate: (String) -> Unit) {
+    var nombre by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,16 +61,29 @@ fun Pantalla1(onNavigate: (String) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("🍲 Recetario App", style = MaterialTheme.typography.titleLarge)
+        Text("Bienvenido al Recetario 🍲", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { onNavigate("Receta: Arroz con Pollo") }) {
-            Text("Ver receta")
+
+        OutlinedTextField(
+            value = nombre,
+            onValueChange = { nombre = it },
+            label = { Text("Ingresa tu nombre") }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                if (nombre.isNotBlank()) onNavigate(nombre)
+            }
+        ) {
+            Text("Ir a la Pantalla 2")
         }
     }
 }
 
 @Composable
-fun Pantalla2(texto: String, onBack: () -> Unit) {
+fun Pantalla2(nombre: String, onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -80,12 +91,12 @@ fun Pantalla2(texto: String, onBack: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("📖 Detalle de la Receta", style = MaterialTheme.typography.titleLarge)
+        Text("Hola, $nombre 👋", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = texto, style = MaterialTheme.typography.bodyLarge)
+        Text("¡Bienvenido al recetario de cocina!", style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = { onBack() }) {
-            Text("Volver al menú")
+        Button(onClick = onBack) {
+            Text("Volver a la Pantalla 1")
         }
     }
 }
